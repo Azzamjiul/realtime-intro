@@ -1,7 +1,7 @@
 import http from "http";
 import handler from "serve-handler";
 
-// these are helpers to help you deal with the binary data that websockets use
+// helpers for handling binary data
 import objToResponse from "./obj-to-response.js";
 import generateAcceptValue from "./generate-accept-value.js";
 import parseMessage from "./parse-message.js";

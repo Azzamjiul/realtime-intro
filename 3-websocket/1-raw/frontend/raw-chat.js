@@ -3,7 +3,6 @@ const msgs = document.getElementById("msgs");
 const presence = document.getElementById("presence-indicator");
 let allChat = [];
 
-// listen for events on the form
 chat.addEventListener("submit", function (e) {
   e.preventDefault();
   postNewMsg(chat.elements.user.value, chat.elements.text.value);
@@ -11,14 +10,10 @@ chat.addEventListener("submit", function (e) {
 });
 
 async function postNewMsg(user, text) {
-  // code goes here
+  /* code here */
 }
 
-/*
- *
- * your code goes here
- *
- */
+/* code here */
 
 function render() {
   const html = allChat.map(({ user, text }) => template(user, text));
