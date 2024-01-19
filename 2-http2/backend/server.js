@@ -6,7 +6,7 @@ import handler from "serve-handler";
 
 let connections = [];
 
-const msg = [{ user: "Azzam", text: "inital message", time: Date.now() }];
+const msg = [];
 const getMsgs = () => Array.from(msg).reverse();
 
 msg.push({ user: "azzam", text: "hi",});
@@ -18,6 +18,23 @@ const server = http2.createSecureServer({
 });
 
 /* some code goes here */
+server.on("stream", (stream, headers) => {
+  const method = headers[":method"];
+  const path = headers[":path"];
+  if (path === "/msgs" && method === "GET") {
+    console.log('connected');
+    stream.respond({
+      ":status": 200,
+      "content-type": "text/plain; charset=utf-8",
+    });
+    stream.write(JSON.stringify({ msgs: getMsgs() }));
+    connections.push(stream);
+    stream.on("close", () => {
+      console.log('disconnected');
+      connections = connections.filter((s) => s !== stream);
+    })
+  }
+});
 
 server.on("request", async (req, res) => {
   const path = req.headers[":path"];
@@ -36,11 +53,16 @@ server.on("request", async (req, res) => {
     const { user, text } = JSON.parse(data);
 
     /* some code goes here */
+    msg.push({user, text});
+    res.end();
+    connections.forEach((stream) => {
+      stream.write(JSON.stringify({ msgs: getMsgs() }));
+    })
   }
 });
 
 // start listening
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 server.listen(port, () =>
   console.log(
     `Server running at https://localhost:${port} - make sure you're on httpS, not http`
