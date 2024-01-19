@@ -12,7 +12,7 @@ chat.addEventListener("submit", function (e) {
 
 async function postNewMsg(user, text) {
   console.log("postNewMsg()");
-  const data = {user, text};
+  const data = { user, text };
   const options = {
     method: "POST",
     body: JSON.stringify(data),
@@ -34,7 +34,7 @@ async function getNewMsgs() {
   }
   allChat = json.msg;
   render();
-  setTimeout(getNewMsgs, INTERVAL);
+  // setTimeout(getNewMsgs, INTERVAL);
 }
 
 function render() {
@@ -47,4 +47,14 @@ function render() {
 const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
-getNewMsgs();
+// getNewMsgs();
+let timeToMakeNextRequest = 0;
+async function rafTimer(time) {
+  if (timeToMakeNextRequest <= time) {
+    await getNewMsgs();
+    timeToMakeNextRequest = time + INTERVAL;
+  }
+  requestAnimationFrame(rafTimer);
+}
+
+requestAnimationFrame(rafTimer);
