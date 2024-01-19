@@ -23,18 +23,25 @@ async function postNewMsg(user, text) {
   await fetch("/poll", options);
 }
 
+let failedTries = 0;
 async function getNewMsgs() {
   console.log("getNewMsgs()");
   let json;
   try {
     const res = await fetch("/poll");
+
+    if (res.status >= 400) {
+      throw new Error("request did not succeed: " + res.status);
+    }
+
     json = await res.json();
+    allChat = json.msg;
+    render();
+    failedTries = 0;
   } catch (error) {
     console.error(error);
+    failedTries++;
   }
-  allChat = json.msg;
-  render();
-  // setTimeout(getNewMsgs, INTERVAL);
 }
 
 function render() {
@@ -47,12 +54,12 @@ function render() {
 const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
-// getNewMsgs();
+const BACKOFF = 5000;
 let timeToMakeNextRequest = 0;
 async function rafTimer(time) {
   if (timeToMakeNextRequest <= time) {
     await getNewMsgs();
-    timeToMakeNextRequest = time + INTERVAL;
+    timeToMakeNextRequest = time + INTERVAL + failedTries * BACKOFF;
   }
   requestAnimationFrame(rafTimer);
 }
